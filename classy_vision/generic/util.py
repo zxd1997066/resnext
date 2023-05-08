@@ -18,7 +18,13 @@ import torch
 import torch.nn as nn
 from classy_vision.generic.distributed_util import broadcast_object, is_primary
 from fvcore.common.file_io import PathManager
-
+# from torch._six import container_abcs
+TORCH_MAJOR = int(torch.__version__.split('.')[0])
+TORCH_MINOR = int(torch.__version__.split('.')[1])
+if TORCH_MAJOR == 1 and TORCH_MINOR < 8:
+    from torch._six import container_abcs
+else:
+    import collections.abc as container_abcs
 
 try:
     import apex
