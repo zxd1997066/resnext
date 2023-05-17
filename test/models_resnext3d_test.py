@@ -361,5 +361,8 @@ if __name__ == '__main__':
         if args.precision == 'bfloat16':
             with torch.cpu.amp.autocast(enabled=True, dtype=torch.bfloat16):
                 case.test_forward_pass()
+        elif args.precision == 'float16':
+            with torch.cpu.amp.autocast(enabled=True, dtype=torch.half):
+                case.test_forward_pass()
         else:
             case.test_forward_pass()
