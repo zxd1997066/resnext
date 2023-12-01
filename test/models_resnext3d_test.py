@@ -117,6 +117,8 @@ class TestResNeXt3D(unittest.TestCase):
                         print("---- Use channels last format.")
                     except:
                         print("---- Use normal format.")
+                if args.compile:
+                    model = torch.compile(model, backend=args.backend, options={"freezing": True})
                 if args.ipex:
                     model.eval()
                     import intel_extension_for_pytorch as ipex
@@ -353,6 +355,10 @@ if __name__ == '__main__':
             help='NHWC')
     parser.add_argument('--precision', type=str, default='float32',
             help='float32, bfloat16')
+    parser.add_argument("--compile", action='store_true', default=False,
+                    help="enable torch.compile")
+    parser.add_argument("--backend", type=str, default='inductor',
+                    help="enable torch.compile backend")
     args = parser.parse_args()
 
     case = TestResNeXt3D()
