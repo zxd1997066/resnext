@@ -365,10 +365,10 @@ if __name__ == '__main__':
     case.setUp()
     with torch.no_grad():
         if args.precision == 'bfloat16':
-            with torch.cpu.amp.autocast(enabled=True, dtype=torch.bfloat16):
+            with torch.autocast(device_type="cuda" if torch.cuda.is_available() else "cpu", enabled=True, dtype=torch.bfloat16):
                 case.test_forward_pass()
         elif args.precision == 'float16':
-            with torch.cpu.amp.autocast(enabled=True, dtype=torch.half):
+            with torch.autocast(device_type="cuda" if torch.cuda.is_available() else "cpu", enabled=True, dtype=torch.half):
                 case.test_forward_pass()
         else:
             case.test_forward_pass()
