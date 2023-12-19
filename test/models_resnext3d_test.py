@@ -109,6 +109,7 @@ class TestResNeXt3D(unittest.TestCase):
                 model = build_model(forward_pass_model_config)
 
                 model = model.eval()
+                model = model.cuda() if torch.cuda.is_available() else model
                 if args.channels_last:
                     try:
                         model = model.to(memory_format=torch.channels_last_3d)
@@ -130,7 +131,9 @@ class TestResNeXt3D(unittest.TestCase):
                 if args.jit:
                     try:
                         # model = torch.jit.script(model)
+                        split_config["input"]["video"] = split_config["input"]["video"].cuda() if torch.cuda.is_available() else split_config["input"]["video"]
                         model = torch.jit.trace(model, split_config["input"])
+                        split_config["input"]["video"] = split_config["input"]["video"].cpu() if torch.cuda.is_available() else split_config["input"]["video"]
                         print("---- With JIT enabled.")
                         if args.ipex:
                             model = torch.jit.freeze(model)
@@ -141,13 +144,17 @@ class TestResNeXt3D(unittest.TestCase):
                 iters = args.num_iters
                 # warmup
                 for i in range(warmup_steps):
+                    split_config["input"]["video"] = split_config["input"]["video"].cuda() if torch.cuda.is_available() else split_config["input"]["video"]
                     out = model(split_config["input"])
+                    split_config["input"]["video"] = split_config["input"]["video"].cpu() if torch.cuda.is_available() else split_config["input"]["video"]
                 ##run inference
                 total_time = 0.0
                 reps_done = 0
                 batch_time_list = []
                 for i in range(iters):
                     start = time.time()
+
+                    split_config["input"]["video"] = split_config["input"]["video"].cuda() if torch.cuda.is_available() else split_config["input"]["video"]
 
                     if args.profile:
                         with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU], record_shapes=True) as prof:
@@ -167,7 +174,7 @@ class TestResNeXt3D(unittest.TestCase):
                             # self.save_profile_result(timeline_dir + torch.backends.quantized.engine + "_result_average.xlsx", table_res)
                     else:
                         out = model(split_config["input"])
-
+                    split_config["input"]["video"] = split_config["input"]["video"].cpu() if torch.cuda.is_available() else split_config["input"]["video"]
                     end = time.time()
                     print("Iteration: {}, inference time: {} sec.".format(i, end - start), flush=True)
                     delta = end - start
