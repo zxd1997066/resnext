@@ -68,7 +68,7 @@ class TestResNeXt3D(unittest.TestCase):
 
             self.model_configs.append(model_config)
 
-        self.batchsize = 1
+        self.batchsize = args.batch_size
 
         test_input = {"video": torch.rand(self.batchsize, 3, 16, 256, 320)}
 
