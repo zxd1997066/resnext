@@ -366,10 +366,16 @@ if __name__ == '__main__':
                     help="enable torch.compile")
     parser.add_argument("--backend", type=str, default='inductor',
                     help="enable torch.compile backend")
+    parser.add_argument("--triton_cpu", action='store_true', default=False,
+                    help="enable triton_cpu")
     args = parser.parse_args()
 
     case = TestResNeXt3D()
     case.setUp()
+    if args.triton_cpu:
+        print("run with triton cpu backend")
+        import torch._inductor.config
+        torch._inductor.config.cpu_backend="triton"
     with torch.no_grad():
         if args.precision == 'bfloat16':
             with torch.autocast(device_type="cuda" if torch.cuda.is_available() else "cpu", enabled=True, dtype=torch.bfloat16):
